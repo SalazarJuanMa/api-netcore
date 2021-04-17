@@ -1,0 +1,28 @@
+@startuml
+actor customer
+participant AppSetup as s
+participant AppService as i
+participant Database as db
+customer-> s : Making /SecureToken
+note right
+  Check required fields user and password.
+end note
+alt check for mandatory cookies
+   s -> i : /SecureToken call
+   i --> i: Validate Information
+   i -> db: Send User to verify
+   db -> i: Return Response
+   i --> i: Generate Token
+   i -> s: Response with UserName and Token
+   alt Get Offer Setup success
+     i -> s : 200 Success
+     s-> customer: 200 Success redirection
+   else authorize failed
+     i -> s : 400 / 404 / 500 Failure response
+     s -> customer: display error banner
+   end
+else Invalid User or Password
+   s -> customer: Display Error message
+end
+
+@enduml
