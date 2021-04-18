@@ -193,29 +193,8 @@ namespace APP
 
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();               
-            }
-            else
-            {
-                app.UseHsts();
-            }
-
-            HealthCheckOptions options = new HealthCheckOptions
-            {
-                ResponseWriter = async (c, r) =>
-                {
-                    c.Response.ContentType = StartupConstants.CONTENT_TYPE_JSON;
-
-                    string result = JsonConvert.SerializeObject(new
-                    {
-                        status = r.Status.ToString(),
-                        message = r.Entries.Select(e => new { key = e.Key, value = e.Value.Status.ToString() })
-                    });
-                    await c.Response.WriteAsync(result);
-                }
-            };
-
-// Enable middleware to serve generated Swagger as a JSON endpoint.
+                app.UseDeveloperExceptionPage();
+                // Enable middleware to serve generated Swagger as a JSON endpoint.
                 var basePath = $"/";
                 app.UseSwagger(c =>
                 {
@@ -237,6 +216,26 @@ namespace APP
                     c.ShowCommonExtensions();
                     c.EnableValidator();
                 });
+            }
+            else
+            {
+                app.UseHsts();
+            }
+
+            HealthCheckOptions options = new HealthCheckOptions
+            {
+                ResponseWriter = async (c, r) =>
+                {
+                    c.Response.ContentType = StartupConstants.CONTENT_TYPE_JSON;
+
+                    string result = JsonConvert.SerializeObject(new
+                    {
+                        status = r.Status.ToString(),
+                        message = r.Entries.Select(e => new { key = e.Key, value = e.Value.Status.ToString() })
+                    });
+                    await c.Response.WriteAsync(result);
+                }
+            };
 
             app.UseHealthChecks(StartupConstants.HEALTH_CHECK, options);
             app.UseStaticFiles();
